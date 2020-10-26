@@ -17,8 +17,6 @@ import { keyDownListener, keyUpListener } from '@/utils/inputHandler'
 import Player from '@/stores/Player'
 import backgroundImage from '@/assets/background.png'
 
-const localPlayerId = localStorage.getItem('sb-mog')
-
 const keyDownHandler = function(player) {
   return function(event) { keyDownListener(event, player) }
 }
@@ -51,6 +49,7 @@ export default {
     }
   },
   async created() {
+    const localPlayerId = localStorage.getItem('sb-mog')
     await this.$supabase
       .from('users')
       .update({ status: 'ONLINE' })
@@ -119,12 +118,12 @@ export default {
       }
     },
     handleCloseBrowser: async function() {
-      const [localPlayer] = this.players.filter(player => player.id === localPlayerId)
-      console.log(`Setting ${localPlayer.id} to OFFLINE`)
+      const localPlayerId = localStorage.getItem('sb-mog')
+      console.log(`Setting ${localPlayerId} to OFFLINE`)
       await this.$supabase
         .from('users')
         .update({ status: 'OFFLINE' })
-        .eq('id', localPlayer.id)
+        .eq('id', localPlayerId)
     }
   }
 }

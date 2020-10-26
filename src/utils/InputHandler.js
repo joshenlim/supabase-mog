@@ -7,7 +7,7 @@ export const keyDownListener = (event, player) => {
     case 'a':
       player.moveLeft()
       break;
-    case ' ':
+    case 'w':
       player.jump()
       break;
   }

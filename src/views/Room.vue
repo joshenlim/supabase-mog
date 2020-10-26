@@ -16,6 +16,8 @@
 import { keyDownListener, keyUpListener } from '@/utils/InputHandler'
 import backgroundImage from '@/assets/background.png'
 
+const FLOOR_Y_LIMIT = 450
+
 const keyDownHandler = function(player) {
   return function(event) { keyDownListener(event, player) }
 }
@@ -51,14 +53,13 @@ export default {
         name: null,
         width: 40,
         height: 55,
-        positionX: 0,
-        positionY: 0,
         direction: 'right',
 
-        // To implement logic for
+        positionX: 0,
+        positionY: 0,
         jumping: false,
         maxVelocityX: 6,
-        maxVelocityY: 30,
+        maxVelocityY: 25,
         velocityX: 0,
         velocityY: 0,
 
@@ -106,17 +107,17 @@ export default {
           this.player.velocityY += 1.5
           this.player.positionX += this.player.velocityX
           this.player.positionY += this.player.velocityY
-          this.player.velocityY *= 0.9
+          // this.player.velocityX *= 0.9
 
           if (this.player.positionX < 0) {
-            this.player.positionX = 0
-          }
-          if (this.player.positionX + this.player.width > this.canvasWidth) {
             this.player.positionX = this.canvasWidth - this.player.width
           }
-          if (this.player.positionY > 450) {
+          if (this.player.positionX + this.player.width > this.canvasWidth) {
+            this.player.positionX = 0
+          }
+          if (this.player.positionY > FLOOR_Y_LIMIT) {
             this.player.jumping = false
-            this.player.positionY = 450
+            this.player.positionY = FLOOR_Y_LIMIT
             this.player.velocityY = 0
           }
         }

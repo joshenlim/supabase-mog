@@ -16,10 +16,10 @@ export const keyDownListener = (event, player) => {
 export const keyUpListener = (event, player) => {
   switch(event.key) {
     case 'd':
-      if (player.velocityX > 0) player.stop()
+      player.stopRight()
       break;
     case 'a':
-      if (player.velocityX < 0) player.stop()
+      player.stopLeft()
       break;
   }
 }

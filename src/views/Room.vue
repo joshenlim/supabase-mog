@@ -55,21 +55,26 @@ export default {
         height: 55,
         direction: 'right',
 
+        movingRight: false,
+        movingLeft: false,
+
         positionX: 0,
         positionY: 0,
         jumping: false,
-        maxVelocityX: 6,
         maxVelocityY: 25,
+        accelerationX: 0.9,
         velocityX: 0,
         velocityY: 0,
 
         moveRight: () => {
+          console.log('move right')
           this.player.direction = 'right'
-          this.player.velocityX = this.player.maxVelocityX
+          this.player.movingRight = true
         },
         moveLeft: () => {
+          console.log('move left')
           this.player.direction = 'left'
-          this.player.velocityX = -this.player.maxVelocityX
+          this.player.movingLeft = true
         },
         jump: () => {
           if (!this.player.jumping) {
@@ -77,8 +82,11 @@ export default {
             this.player.velocityY = -this.player.maxVelocityY
           }
         },
-        stop: () => {
-          this.player.velocityX = 0
+        stopRight: () => {
+          this.player.movingRight = false
+        },
+        stopLeft: () => {
+          this.player.movingLeft = false
         },
         draw: (ctx) => {
           const playerSprite = this.player.direction === 'right'
@@ -91,6 +99,9 @@ export default {
           ctx.fillText(this.player.name, this.player.positionX + this.player.width / 2, this.player.positionY + this.player.height + 15)
         },
         update: async() => {
+
+          if (this.player.movingRight)  this.player.velocityX += this.player.accelerationX
+          if (this.player.movingLeft)   this.player.velocityX -= this.player.accelerationX
 
           // if (this.player.velocityX !== 0) {
           //   try {
@@ -107,14 +118,18 @@ export default {
           this.player.velocityY += 1.5
           this.player.positionX += this.player.velocityX
           this.player.positionY += this.player.velocityY
-          // this.player.velocityX *= 0.9
+          this.player.velocityX *= 0.9
 
+          // Collision detect against X edges
           if (this.player.positionX < 0) {
             this.player.positionX = this.canvasWidth - this.player.width
           }
+
           if (this.player.positionX + this.player.width > this.canvasWidth) {
             this.player.positionX = 0
           }
+
+          // Collision detect against Y bottom edge
           if (this.player.positionY > FLOOR_Y_LIMIT) {
             this.player.jumping = false
             this.player.positionY = FLOOR_Y_LIMIT

@@ -58,7 +58,7 @@ export default {
         // To implement logic for
         jumping: false,
         maxVelocityX: 6,
-        maxVelocityY: 6,
+        maxVelocityY: 30,
         velocityX: 0,
         velocityY: 0,
 
@@ -73,7 +73,7 @@ export default {
         jump: () => {
           if (!this.player.jumping) {
             this.player.jumping = true,
-            this.player.velocityY -= this.player.maxVelocityY
+            this.player.velocityY = -this.player.maxVelocityY
           }
         },
         stop: () => {
@@ -85,8 +85,8 @@ export default {
             : document.getElementById("player-left-stationary")
 
           ctx.drawImage(playerSprite, this.player.positionX, this.player.positionY, this.player.width, this.player.height)
-          ctx.font = "12px Arial";
-          ctx.textAlign = "center";
+          ctx.font = "12px Arial"
+          ctx.textAlign = "center"
           ctx.fillText(this.player.name, this.player.positionX + this.player.width / 2, this.player.positionY + this.player.height + 15)
         },
         update: async() => {
@@ -102,13 +102,22 @@ export default {
           //     console.error('Update fail', error)
           //   }
           // }
-          this.player.positionX += this.player.velocityX;
+
+          this.player.velocityY += 1.5
+          this.player.positionX += this.player.velocityX
+          this.player.positionY += this.player.velocityY
+          this.player.velocityY *= 0.9
 
           if (this.player.positionX < 0) {
             this.player.positionX = 0
           }
           if (this.player.positionX + this.player.width > this.canvasWidth) {
-            this.player.positionX = this.canvasWidth - this.player.width;
+            this.player.positionX = this.canvasWidth - this.player.width
+          }
+          if (this.player.positionY > 450) {
+            this.player.jumping = false
+            this.player.positionY = 450
+            this.player.velocityY = 0
           }
         }
       },

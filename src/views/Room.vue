@@ -13,9 +13,11 @@
 </template>
 
 <script>
-import { keyDownListener, keyUpListener } from '@/utils/InputHandler'
+import { keyDownListener, keyUpListener } from '@/utils/inputHandler'
 import Player from '@/stores/Player'
 import backgroundImage from '@/assets/background.png'
+
+const localPlayerId = localStorage.getItem('sb-mog')
 
 const keyDownHandler = function(player) {
   return function(event) { keyDownListener(event, player) }
@@ -45,33 +47,47 @@ export default {
       canvasWidth: 800,
       canvasHeight: 600,
       background: backgroundImage,
-
-      player: new Player(localStorage.getItem('sb-mog'))
+      players: []
     }
   },
-  created() {
-    window.addEventListener('keydown', keyDownHandler(this.player), false)
-    window.addEventListener('keyup', keyUpHandler(this.player), false)
+  async created() {
+    await this.$supabase
+      .from('users')
+      .update({ status: 'ONLINE' })
+      .eq('id', localPlayerId)
+
+    const { body: users } = await this.$supabase
+      .from('users')
+      .select('*')
+      .eq('status', 'ONLINE')
+    
+    this.players = users.map(user => new Player(user))
+
+    const [localPlayer] = this.players.filter(player => player.id === localPlayerId)
+    window.addEventListener('keydown', keyDownHandler(localPlayer), false)
+    window.addEventListener('keyup', keyUpHandler(localPlayer), false)
     window.addEventListener('beforeunload', this.handleCloseBrowser, false)
   },
   async mounted() {
     this.canvas = document.getElementById("game")
     this.ctx = this.canvas.getContext("2d")
 
-    await this.$supabase
-      .from('users')
-      .update({ status: 'ONLINE' })
-      .eq('id', this.player.id)
-
-    const { body: users } = await this.$supabase.from('users')
-      .select('*')
-      .eq('id', this.player.id)
-    
-    this.player.name = users[0].username
-    this.player.positionX = users[0].x
-    this.player.positionY = users[0].y
-
     // Start subscribing to changes on the users table
+    this.$supabase
+      .from('users')
+      .on('*', payload => {
+        const updatedUser = payload.new
+        switch(payload.eventType) {
+          case 'UPDATE':
+            if (updatedUser.status === 'OFFLINE') this.removeUserFromCanvas(updatedUser)
+            else if (updatedUser.status === 'ONLINE') this.updateUserOnCanvas(updatedUser)
+            break;
+          case 'INSERT':
+            break;
+        }
+        console.log('Payload', updatedUser)
+      })
+      .subscribe()
 
     requestAnimationFrame(this.gameLoop)
   },
@@ -84,21 +100,31 @@ export default {
   methods: {
     gameDraw: function() {
       this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
-      this.player.draw(this.ctx)
+      this.players.forEach(player => player.draw(this.ctx))
     },
     gameUpdate: function() {
-      this.player.update(this.ctx)
+      this.players.forEach(player => player.update(this.canvasWidth))
     },
     gameLoop: function() {
       this.gameUpdate()
       this.gameDraw()
       requestAnimationFrame(this.gameLoop)
     },
+    removeUserFromCanvas: function(user) {
+      this.players = this.players.filter(player => player.id !== user.id)
+    },
+    updateUserOnCanvas:function(user) {
+      if (this.players.filter(player => player.id === user.id).length === 0) {
+        this.players = this.players.concat([new Player(user)])
+      }
+    },
     handleCloseBrowser: async function() {
+      const [localPlayer] = this.players.filter(player => player.id === localPlayerId)
+      console.log(`Setting ${localPlayer.id} to OFFLINE`)
       await this.$supabase
         .from('users')
         .update({ status: 'OFFLINE' })
-        .eq('id', this.player.id)
+        .eq('id', localPlayer.id)
     }
   }
 }

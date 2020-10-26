@@ -18,8 +18,11 @@ export default class Player {
   velocityX = 0
   velocityY = 0
 
-  constructor(id) {
-    this.id = id
+  constructor(user) {
+    this.id = user.id
+    this.name = user.username
+    this.positionX = user.x || 400
+    this.positionY = user.y || 450
   }
 
   get id() {
@@ -78,21 +81,7 @@ export default class Player {
     ctx.fillText(this.name, this.positionX + this.width / 2, this.positionY + this.height + 15)
   }
 
-  async update() {
-
-    // Update supabase client
-    // if (this.player.velocityX !== 0) {
-    //   try {
-    //     await this.$supabase
-    //       .from('users')
-    //       .update({ x: this.player.positionX })
-    //       .eq('id', this.player.id)
-    //     // If update below is placed before supabase, will be very smooth but wall collision will jitter
-    //   } catch (error) {
-    //     console.error('Update fail', error)
-    //   }
-    // }
-
+  async update(canvasWidth) {
     if (this.movingRight)  this.velocityX += this.accelerationX
     if (this.movingLeft)   this.velocityX -= this.accelerationX
 
@@ -101,12 +90,27 @@ export default class Player {
     this.positionY += this.velocityY
     this.velocityX *= 0.9
 
+    // Update DB
+    // if (this.movingRight || this.movingLeft || this.jumping) {
+    //   try {
+    //     await supabase
+    //       .from('users')
+    //       .update({
+    //         x: this.positionX,
+    //         y: this.positionY
+    //       })
+    //       .eq('id', this.id)
+    //   } catch (error) {
+    //     console.error('Update fail', error)
+    //   }
+    // }
+
     // Collision detect against side walls
     if (this.positionX < 0) {
-      this.positionX = this.canvasWidth - this.width
+      this.positionX = canvasWidth - this.width
     }
 
-    if (this.positionX + this.width > this.canvasWidth) {
+    if (this.positionX + this.width > canvasWidth) {
       this.positionX = 0
     }
 

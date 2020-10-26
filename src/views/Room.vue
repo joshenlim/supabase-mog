@@ -14,9 +14,8 @@
 
 <script>
 import { keyDownListener, keyUpListener } from '@/utils/InputHandler'
+import Player from '@/utils/Player'
 import backgroundImage from '@/assets/background.png'
-
-const FLOOR_Y_LIMIT = 450
 
 const keyDownHandler = function(player) {
   return function(event) { keyDownListener(event, player) }
@@ -27,7 +26,7 @@ const keyUpHandler = function(player) {
 }
 
 // Road to multiplayer:
-// - Encapsulate player information as a class?
+// - [x] Encapsulate player information as a class?
 // - Perhaps everything can listen to db changes, even local player?
 //    - Actually this might be important, so that updates received by everyone is synced
 // - When player comes online
@@ -47,96 +46,7 @@ export default {
       canvasHeight: 600,
       background: backgroundImage,
 
-      // Player information
-      player: {
-        id: localStorage.getItem('sb-mog'),
-        name: null,
-        width: 40,
-        height: 55,
-        direction: 'right',
-
-        movingRight: false,
-        movingLeft: false,
-
-        positionX: 0,
-        positionY: 0,
-        jumping: false,
-        maxVelocityY: 25,
-        accelerationX: 0.9,
-        velocityX: 0,
-        velocityY: 0,
-
-        moveRight: () => {
-          console.log('move right')
-          this.player.direction = 'right'
-          this.player.movingRight = true
-        },
-        moveLeft: () => {
-          console.log('move left')
-          this.player.direction = 'left'
-          this.player.movingLeft = true
-        },
-        jump: () => {
-          if (!this.player.jumping) {
-            this.player.jumping = true,
-            this.player.velocityY = -this.player.maxVelocityY
-          }
-        },
-        stopRight: () => {
-          this.player.movingRight = false
-        },
-        stopLeft: () => {
-          this.player.movingLeft = false
-        },
-        draw: (ctx) => {
-          const playerSprite = this.player.direction === 'right'
-            ? document.getElementById("player-right-stationary")
-            : document.getElementById("player-left-stationary")
-
-          ctx.drawImage(playerSprite, this.player.positionX, this.player.positionY, this.player.width, this.player.height)
-          ctx.font = "12px Arial"
-          ctx.textAlign = "center"
-          ctx.fillText(this.player.name, this.player.positionX + this.player.width / 2, this.player.positionY + this.player.height + 15)
-        },
-        update: async() => {
-
-          if (this.player.movingRight)  this.player.velocityX += this.player.accelerationX
-          if (this.player.movingLeft)   this.player.velocityX -= this.player.accelerationX
-
-          // if (this.player.velocityX !== 0) {
-          //   try {
-          //     await this.$supabase
-          //       .from('users')
-          //       .update({ x: this.player.positionX })
-          //       .eq('id', this.player.id)
-          //     // If update below is placed before supabase, will be very smooth but wall collision will jitter
-          //   } catch (error) {
-          //     console.error('Update fail', error)
-          //   }
-          // }
-
-          this.player.velocityY += 1.5
-          this.player.positionX += this.player.velocityX
-          this.player.positionY += this.player.velocityY
-          this.player.velocityX *= 0.9
-
-          // Collision detect against X edges
-          if (this.player.positionX < 0) {
-            this.player.positionX = this.canvasWidth - this.player.width
-          }
-
-          if (this.player.positionX + this.player.width > this.canvasWidth) {
-            this.player.positionX = 0
-          }
-
-          // Collision detect against Y bottom edge
-          if (this.player.positionY > FLOOR_Y_LIMIT) {
-            this.player.jumping = false
-            this.player.positionY = FLOOR_Y_LIMIT
-            this.player.velocityY = 0
-          }
-        }
-      },
+      player: new Player(localStorage.getItem('sb-mog'))
     }
   },
   created() {

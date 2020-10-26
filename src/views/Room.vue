@@ -1,7 +1,7 @@
 <template>
   <div>
-    <img id="player-right-stationary" src="@/assets/player-right-stationary.svg">
-    <img id="player-left-stationary" src="@/assets/player-left-stationary.svg">
+    <img class="hidden" id="player-right-stationary" src="@/assets/player-right-stationary.svg">
+    <img class="hidden" id="player-left-stationary" src="@/assets/player-left-stationary.svg">
     <canvas
       class="bg-white"
       id="game"
@@ -9,6 +9,10 @@
       :width="canvasWidth"
       :height="canvasHeight"
     />
+    <div class="flex justify-between items-center mt-2 py-2 px-3 border border-white border-opacity-50 rounded-md">
+      <div>{{ playerName }}</div>
+      <img v-on:click="logout()" alt="log-out" class="cursor-pointer w-5 h-5" src="@/assets/icons/log-out.svg">
+    </div>
   </div>
 </template>
 
@@ -29,11 +33,9 @@ const keyUpHandler = function(player) {
 // - [x] Encapsulate player information as a class?
 // - Perhaps everything can listen to db changes, even local player?
 //    - Actually this might be important, so that updates received by everyone is synced
-// - When player comes online
-//    - Inject an <img>, identify via id=userid
+// - [x] When player comes online
 //    - Room.vue needs to keep a context of players, and constantly draw
-// - When player goes offline
-//    - Eject <img>, identify via id=userid
+// - [x] When player goes offline
 // Add a login as different user button as well
 
 export default {
@@ -45,6 +47,7 @@ export default {
       canvasWidth: 800,
       canvasHeight: 600,
       background: backgroundImage,
+      playerName: '',
       players: []
     }
   },
@@ -63,9 +66,10 @@ export default {
     this.players = users.map(user => new Player(user))
 
     const [localPlayer] = this.players.filter(player => player.id === localPlayerId)
+    this.playerName = localPlayer.name
     window.addEventListener('keydown', keyDownHandler(localPlayer), false)
     window.addEventListener('keyup', keyUpHandler(localPlayer), false)
-    window.addEventListener('beforeunload', this.handleCloseBrowser, false)
+    window.addEventListener('beforeunload', this.setUserOffline, false)
   },
   async mounted() {
     this.canvas = document.getElementById("game")
@@ -117,20 +121,20 @@ export default {
         this.players = this.players.concat([new Player(user)])
       }
     },
-    handleCloseBrowser: async function() {
+    setUserOffline: async function() {
       const localPlayerId = localStorage.getItem('sb-mog')
       console.log(`Setting ${localPlayerId} to OFFLINE`)
       await this.$supabase
         .from('users')
         .update({ status: 'OFFLINE' })
         .eq('id', localPlayerId)
+    },
+    logout: function() {
+      this.setUserOffline()
+      this.$supabase.auth.logout()
+      localStorage.removeItem('sb-mog')
+      this.$router.push({ path: '/' })
     }
   }
 }
 </script>
-
-<style scoped>
-img {
-  display: none
-}
-</style>

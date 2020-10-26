@@ -118,12 +118,7 @@ export default {
       } catch (error) {
         console.error(error)
       }
-    },
-    revokeSession: function() {
-      this.$supabase.auth.logout()
-      localStorage.removeItem('sb-mog')
-      this.$router.push({ path: '/' })
-    },
+    }
   }
 }
 </script>

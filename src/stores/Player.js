@@ -4,6 +4,7 @@ export default class Player {
   name = ''
   width = 40
   height = 55
+  floorLimit = 450
   direction = 'right'
 
   movingRight = false
@@ -43,6 +44,10 @@ export default class Player {
 
   set positionY(y) {
     this.positionY = y
+  }
+
+  set floorLimit(y) {
+    this.floorLimit = y
   }
 
   moveRight() {
@@ -105,7 +110,7 @@ export default class Player {
     //   }
     // }
 
-    // Collision detect against side walls
+    // Collision detection against side walls
     if (this.positionX < 0) {
       this.positionX = canvasWidth - this.width
     }
@@ -114,10 +119,10 @@ export default class Player {
       this.positionX = 0
     }
 
-    // Collision detect against bottom wall
-    if (this.positionY > 450) {
+    // Collision detection against bottom wall
+    if (this.positionY > this.floorLimit) {
       this.jumping = false
-      this.positionY = 450
+      this.positionY = this.floorLimit
       this.velocityY = 0
     }
   }

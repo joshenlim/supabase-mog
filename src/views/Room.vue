@@ -1,5 +1,6 @@
 <template>
   <div>
+    <img class="hidden" id="platform" src="@/assets/platform.svg">
     <img class="hidden" id="player-right-stationary" src="@/assets/player-right-stationary.svg">
     <img class="hidden" id="player-left-stationary" src="@/assets/player-left-stationary.svg">
     <canvas
@@ -19,6 +20,7 @@
 <script>
 import { keyDownListener, keyUpListener } from '@/utils/inputHandler'
 import Player from '@/stores/Player'
+import Platform from '@/stores/Platform'
 import backgroundImage from '@/assets/background.png'
 
 const keyDownHandler = function(player) {
@@ -31,12 +33,13 @@ const keyUpHandler = function(player) {
 
 // Road to multiplayer:
 // - [x] Encapsulate player information as a class?
-// - Perhaps everything can listen to db changes, even local player?
+// - [ ] Perhaps everything can listen to db changes, even local player?
 //    - Actually this might be important, so that updates received by everyone is synced
 // - [x] When player comes online
 //    - Room.vue needs to keep a context of players, and constantly draw
 // - [x] When player goes offline
-// Add a login as different user button as well
+// - [x] Add a logout button
+// - [x] Introduce platforms and collision detector
 
 export default {
   name: 'Room',
@@ -48,7 +51,13 @@ export default {
       canvasHeight: 600,
       background: backgroundImage,
       playerName: '',
-      players: []
+      localPlayer: null,
+      players: [],
+      platforms: [
+        new Platform(1, 600, 400),
+        new Platform(2, 50, 230),
+        new Platform(3, 400, 150),
+      ]
     }
   },
   async created() {
@@ -67,6 +76,7 @@ export default {
 
     const [localPlayer] = this.players.filter(player => player.id === localPlayerId)
     this.playerName = localPlayer.name
+    this.localPlayer = localPlayer
     window.addEventListener('keydown', keyDownHandler(localPlayer), false)
     window.addEventListener('keyup', keyUpHandler(localPlayer), false)
     window.addEventListener('beforeunload', this.setUserOffline, false)
@@ -102,11 +112,17 @@ export default {
   },
   methods: {
     gameDraw: function() {
-      this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+      this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight)
+      this.platforms.forEach(platform => platform.draw(this.ctx))
       this.players.forEach(player => player.draw(this.ctx))
     },
     gameUpdate: function() {
       this.players.forEach(player => player.update(this.canvasWidth))
+      if (this.localPlayer) {
+        for (const platform of this.platforms) {
+          if (platform.update(this.localPlayer)) break
+        }
+      }
     },
     gameLoop: function() {
       this.gameUpdate()

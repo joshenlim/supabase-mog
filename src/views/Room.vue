@@ -18,10 +18,10 @@
 </template>
 
 <script>
-import { keyDownListener, keyUpListener } from '../utils/inputHandler.js'
-import Player from '../stores/Player.js'
-import Platform from '../stores/Platform.js'
-import backgroundImage from '../assets/background.png'
+import { keyDownListener, keyUpListener } from '@/utils/inputHandler.js'
+import Player from '@/stores/Player.js'
+import Platform from '@/stores/Platform.js'
+import backgroundImage from '@/assets/background.png'
 
 const keyDownHandler = function(player) {
   return function(event) { keyDownListener(event, player) }
@@ -30,16 +30,6 @@ const keyDownHandler = function(player) {
 const keyUpHandler = function(player) {
   return function(event) { keyUpListener(event, player) }
 }
-
-// Road to multiplayer:
-// - [x] Encapsulate player information as a class?
-// - [ ] Perhaps everything can listen to db changes, even local player?
-//    - Actually this might be important, so that updates received by everyone is synced
-// - [x] When player comes online
-//    - Room.vue needs to keep a context of players, and constantly draw
-// - [x] When player goes offline
-// - [x] Add a logout button
-// - [x] Introduce platforms and collision detector
 
 export default {
   name: 'Room',

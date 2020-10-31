@@ -86,7 +86,13 @@ export default class Player {
     ctx.fillText(this.name, this.positionX + this.width / 2, this.positionY + this.height + 15)
   }
 
-  async update(canvasWidth) {
+  updatePosition(x, y, direction) {
+    this.positionX = x
+    this.positionY = y
+    this.direction = direction
+  }
+
+  async update(canvasWidth, supabase) {
     if (this.movingRight)  this.velocityX += this.accelerationX
     if (this.movingLeft)   this.velocityX -= this.accelerationX
 
@@ -94,21 +100,6 @@ export default class Player {
     this.positionX += this.velocityX
     this.positionY += this.velocityY
     this.velocityX *= 0.9
-
-    // Update DB
-    // if (this.movingRight || this.movingLeft || this.jumping) {
-    //   try {
-    //     await supabase
-    //       .from('users')
-    //       .update({
-    //         x: this.positionX,
-    //         y: this.positionY
-    //       })
-    //       .eq('id', this.id)
-    //   } catch (error) {
-    //     console.error('Update fail', error)
-    //   }
-    // }
 
     // Collision detection against side walls
     if (this.positionX < 0) {
@@ -124,6 +115,22 @@ export default class Player {
       this.jumping = false
       this.positionY = this.floorLimit
       this.velocityY = 0
+    }
+
+    // Update DB
+    if (Math.abs(this.velocityX) > 0.1 || Math.abs(this.velocityY) > 1.5) {
+      try {
+        await supabase
+          .from('users')
+          .update({
+            x: this.positionX,
+            y: this.positionY,
+            direction: this.direction,
+          })
+          .eq('id', this.id)
+      } catch (error) {
+        console.error('Update fail', error)
+      }
     }
   }
 }

@@ -92,13 +92,15 @@ export default {
         const updatedUser = payload.new
         switch(payload.eventType) {
           case 'UPDATE':
-            if (updatedUser.status === 'OFFLINE') this.removeUserFromCanvas(updatedUser)
-            else if (updatedUser.status === 'ONLINE') this.updateUserOnCanvas(updatedUser)
+            if (updatedUser.status === 'OFFLINE') {
+              this.removeUserFromCanvas(updatedUser)
+            } else if (updatedUser.status === 'ONLINE') {
+              this.updateUserOnCanvas(updatedUser)
+            }
             break;
           case 'INSERT':
             break;
         }
-        console.log('Payload', updatedUser)
       })
       .subscribe()
 
@@ -117,8 +119,8 @@ export default {
       this.players.forEach(player => player.draw(this.ctx))
     },
     gameUpdate: function() {
-      this.players.forEach(player => player.update(this.canvasWidth))
       if (this.localPlayer) {
+        this.localPlayer.update(this.canvasWidth, this.$supabase)
         for (const platform of this.platforms) {
           if (platform.update(this.localPlayer)) break
         }
@@ -132,9 +134,12 @@ export default {
     removeUserFromCanvas: function(user) {
       this.players = this.players.filter(player => player.id !== user.id)
     },
-    updateUserOnCanvas:function(user) {
-      if (this.players.filter(player => player.id === user.id).length === 0) {
+    updateUserOnCanvas: function(user) {
+      const player = this.players.filter(player => player.id === user.id)
+      if (player.length === 0) {
         this.players = this.players.concat([new Player(user)])
+      } else if (user.id !== this.localPlayer.id) {
+        player[0].updatePosition(user.x, user.y, user.direction)
       }
     },
     setUserOffline: async function() {

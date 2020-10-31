@@ -107,10 +107,10 @@ export default {
     requestAnimationFrame(this.gameLoop)
   },
   beforeDestroy() {
-    // Go debug this, event listeners aren't getting removed by low priority
+    // Go debug this, event listeners aren't getting removed but low priority
     console.log('on beforeDestroy')
-    window.removeEventListener('keydown', keyDownHandler(this.player), false)
-    window.removeEventListener('keyup', keyUpHandler(this.player), false)
+    window.removeEventListener('keydown', keyDownHandler(this.localPlayer), false)
+    window.removeEventListener('keyup', keyUpHandler(this.localPlayer), false)
   },
   methods: {
     gameDraw: function() {
@@ -148,7 +148,7 @@ export default {
       await this.$supabase
         .from('users')
         .update({ status: 'OFFLINE' })
-        .eq('id', localPlayerId)
+        .eq('id', localPlayerId)  
     },
     logout: function() {
       this.setUserOffline()

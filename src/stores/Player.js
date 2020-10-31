@@ -24,6 +24,7 @@ export default class Player {
     this.name = user.username
     this.positionX = user.x || 400
     this.positionY = user.y || 450
+    this.direction = user.direction || 'right'
   }
 
   get id() {

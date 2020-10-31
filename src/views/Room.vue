@@ -19,8 +19,8 @@
 
 <script>
 // import { keyDownListener, keyUpListener } from '@/utils/inputHandler.js'
-// import Player from '@/stores/Player.js'
-// import Platform from '@/stores/Platform.js'
+import Player from '@/stores/Player.js'
+import Platform from '@/stores/Platform.js'
 import backgroundImage from '@/assets/background.png'
 
 const keyDownHandler = function(player) {

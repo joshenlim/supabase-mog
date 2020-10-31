@@ -1,4 +1,4 @@
-import detectCollision from '@/utils/collisionDetector'
+import detectCollision from '@/utils/collisionDetector.js'
 
 export default class Platform {
 

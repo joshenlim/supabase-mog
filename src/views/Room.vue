@@ -22,7 +22,7 @@ import Player from '@/stores/Player.js'
 import Platform from '@/stores/Platform.js'
 import backgroundImage from '@/assets/background.png'
 import keyDownListener from '@/utils/keyDownListener.js'
-import { keyUpListener } from '@/utils/inputHandler.js'
+import keyUpListener from '@/utils/keyUpListener.js'
 
 const keyDownHandler = function(player) {
   return function(event) { keyDownListener(event, player) }

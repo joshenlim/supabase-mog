@@ -1,3 +1,5 @@
+// Somehow I can't do a import {keyDownListener, keyUpListener} from '@/utils/inputHandler.js' on netlify
+
 export const keyDownListener = (event, player) => {
   if (event.repeat) return
   switch(event.key) {

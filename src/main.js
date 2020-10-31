@@ -12,8 +12,8 @@ Vue.config.productionTip = false
 Vue.use(VueRouter)
 
 Vue.prototype.$supabase = createClient(
-  "https://xdkpruanjhtyqpimwvmt.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTYwMzMwMzc4NywiZXhwIjoxOTE4ODc5Nzg3fQ.O1u-DkLlqtbLih9aO2K7OynQklqefeOpM-nBCA4B_yM"
+  process.env.VUE_APP_SUPABASE_URL,
+  process.env.VUE_APP_SUPABASE_PUBLIC_KEY,
 );
 
 const router = new VueRouter({

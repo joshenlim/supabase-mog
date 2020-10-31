@@ -1,6 +1,8 @@
 # Simple Multiplayer Game with Supabase.js
 
-Simple HTML canvas multiplayer game, built with Vue and Supabase.js
+Simple HTML canvas multiplayer game, built with Vue and Supabase.js.
+
+Rename `sample.env` into `.env` and place your Supabase URL and Public Key accordingly.
 
 ## Project setup
 ```

@@ -1,5 +1,6 @@
 <template>
-  <div class="w-64">
+  <div class="w-64 flex flex-col justify-center">
+    <img id="banner" src="@/assets/banner.svg" class="mb-10 w-64">
     <SignUpForm
       :username="username"
       :email="email"

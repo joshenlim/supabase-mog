@@ -8,7 +8,7 @@ Rename `sample.env` into `.env` and place your Supabase URL and Public Key accor
 
 ## Future/Possible Ideas
 
-- Introduce projectile weapons and health system
+- Introduce projectile weapons and health system!
 
 - Custom character colours
 
